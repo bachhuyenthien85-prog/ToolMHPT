@@ -6,7 +6,6 @@
 const SUPABASE_URL =
   "https://zpckuqwmoafyxuasosqh.supabase.co";
 
-// Publishable / Anon key
 const SUPABASE_KEY =
   "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFO";
 
@@ -28,10 +27,7 @@ let auths = [];
 // LẤY TÀI KHOẢN TỪ SUPABASE
 // ==========================================
 
-async function ```javascript
 async function loadAuths() {
-
-  console.log("=== BẮT ĐẦU LOAD AUTHS ===");
 
   try {
 
@@ -43,8 +39,6 @@ async function loadAuths() {
           ascending: true
         });
 
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
 
     if (error) {
 
@@ -53,28 +47,26 @@ async function loadAuths() {
         error
       );
 
+      auths =
+        JSON.parse(
+          window.localStorage.getItem("auths")
+        ) || [];
+
+      displayAuths();
+
       alert(
-        "Lỗi Supabase:\n\n" +
+        "Không tải được danh sách từ Supabase.\n\n" +
         error.message
       );
 
       return;
     }
 
-    if (!data || data.length === 0) {
 
-      console.warn(
-        "Supabase trả về 0 tài khoản."
-      );
+    // ========================================
+    // CHUYỂN DỮ LIỆU SUPABASE
+    // ========================================
 
-      alert(
-        "Supabase không trả về tài khoản nào."
-      );
-
-      return;
-    }
-
-    // Chuyển dữ liệu
     auths = data.map(account => ({
 
       id: account.id,
@@ -89,120 +81,9 @@ async function loadAuths() {
 
     }));
 
-    console.log(
-      "AUTHS SAU KHI MAP:",
-      auths
-    );
-
-    // Lưu local
-    localStorage.setItem(
-      "auths",
-      JSON.stringify(auths)
-    );
-
-    // Hiển thị
-    displayAuths();
-
-  } catch (error) {
-
-    console.error(
-      "EXCEPTION:",
-      error
-    );
-
-    alert(
-      "Lỗi JavaScript:\n\n" +
-      error.message
-    );
-
-  }
-
-}
-```
-
-
-  try {
 
     // ========================================
-    // QUAN TRỌNG:
-    // KHÔNG lấy password
-    // ========================================
-
-    const { data, error } =
-      await supabaseClient
-        .from("auths")
-        .select(
-          "id, username, server, name, created_at"
-        )
-        .order("created_at", {
-          ascending: true
-        });
-
-
-    if (error) {
-
-      console.error(
-        "Lỗi Supabase:",
-        error
-      );
-
-      // Nếu Supabase lỗi thì dùng dữ liệu
-      // localStorage hiện có.
-      //
-      // Tuy nhiên dữ liệu cũ có thể vẫn chứa password,
-      // nên loại bỏ password trước khi sử dụng.
-
-      const localData =
-        JSON.parse(
-          window.localStorage.getItem("auths")
-        ) || [];
-
-      auths = localData.map(account => ({
-        id: account.id,
-        username: account.username,
-        server: account.server,
-        displayName: account.displayName
-      }));
-
-      // Ghi đè localStorage bằng dữ liệu
-      // KHÔNG có password.
-      window.localStorage.setItem(
-        "auths",
-        JSON.stringify(auths)
-      );
-
-      displayAuths();
-
-      alert(
-        "Không tải được danh sách từ Supabase.\n\n" +
-        error.message
-      );
-
-      return;
-    }
-
-
-    // ========================================
-    // Chuyển dữ liệu Supabase
-    // KHÔNG chứa password
-    // ========================================
-
-    auths = data.map(account => ({
-
-      id: account.id,
-
-      username: account.username,
-
-      server: account.server,
-
-      displayName: account.name
-
-    }));
-
-
-    // ========================================
-    // LƯU LOCALSTORAGE
-    // KHÔNG CÓ PASSWORD
+    // LƯU LOCAL
     // ========================================
 
     window.localStorage.setItem(
@@ -220,37 +101,10 @@ async function loadAuths() {
       error
     );
 
-
-    // ========================================
-    // FALLBACK LOCALSTORAGE
-    // ========================================
-
-    const localData =
+    auths =
       JSON.parse(
         window.localStorage.getItem("auths")
       ) || [];
-
-
-    // Loại bỏ password khỏi dữ liệu cũ
-    auths = localData.map(account => ({
-
-      id: account.id,
-
-      username: account.username,
-
-      server: account.server,
-
-      displayName: account.displayName
-
-    }));
-
-
-    // Ghi lại localStorage sạch
-    window.localStorage.setItem(
-      "auths",
-      JSON.stringify(auths)
-    );
-
 
     displayAuths();
 
@@ -330,10 +184,7 @@ function displayAuths() {
       table.insertRow();
 
 
-    // ======================================
     // NAME
-    // ======================================
-
     const nameCell =
       row.insertCell();
 
@@ -341,10 +192,7 @@ function displayAuths() {
       auth.displayName || "";
 
 
-    // ======================================
     // SERVER
-    // ======================================
-
     const serverCell =
       row.insertCell();
 
@@ -352,10 +200,7 @@ function displayAuths() {
       auth.server || "";
 
 
-    // ======================================
     // BUTTONS
-    // ======================================
-
     const pageCell =
       row.insertCell();
 
@@ -437,21 +282,13 @@ function displayAuths() {
     webVersion.textContent =
       "webVersion";
 
-
     webVersion.addEventListener(
       "click",
       () => {
 
-        // ==================================
-        // KHÔNG CÒN auth.password Ở CLIENT
-        // ==================================
-        //
-        // Password phải được xử lý ở server/
-        // Edge Function nếu muốn bảo mật.
-        //
-
-        alert(
-          "Chức năng webVersion cần được chuyển sang xử lý phía server để không làm lộ password."
+        webBrowser(
+          auth.username,
+          auth.password
         );
 
       }
@@ -476,7 +313,6 @@ function displayAuths() {
     moveUpButton.textContent =
       "Up";
 
-
     moveUpButton.addEventListener(
       "click",
       () => {
@@ -492,12 +328,10 @@ function displayAuths() {
             auths[index]
           ];
 
-
           window.localStorage.setItem(
             "auths",
             JSON.stringify(auths)
           );
-
 
           displayAuths();
 
@@ -523,7 +357,6 @@ function displayAuths() {
     moveDownButton.textContent =
       "Down";
 
-
     moveDownButton.addEventListener(
       "click",
       () => {
@@ -542,12 +375,10 @@ function displayAuths() {
             auths[index]
           ];
 
-
           window.localStorage.setItem(
             "auths",
             JSON.stringify(auths)
           );
-
 
           displayAuths();
 
@@ -584,10 +415,8 @@ function displayAuths() {
       "search-input"
     );
 
-
   if (searchInput) {
 
-    // Xóa listener cũ
     const newSearchInput =
       searchInput.cloneNode(true);
 
@@ -595,7 +424,6 @@ function displayAuths() {
       newSearchInput,
       searchInput
     );
-
 
     newSearchInput.addEventListener(
       "input",

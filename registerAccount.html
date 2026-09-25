@@ -1,11 +1,14 @@
-<!DOCTYPE html>
+from pathlib import Path
+
+html = r'''<!DOCTYPE html>
 <html data-bs-theme="dark">
 <head>
   <title>Register Account</title>
 
-  <script src="../crypto-js.min.js"></script>
-  <script src="../encrypt.js"></script>
-  <script src="../getToken.js"></script>
+  <script src="./crypto-js.min.js"></script>
+  <script src="./encrypt.js"></script>
+  <script src="./getToken.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
@@ -19,27 +22,20 @@
 
 <body>
 
-  <!-- Màn hình nhập mật mã -->
   <div id="password-screen" class="container mt-5">
     <div class="row justify-content-center">
       <div class="col-md-5">
-
         <div class="card">
           <div class="card-body">
-            <h4 class="card-title text-center mb-4">
-              Register Account
-            </h4>
+            <h4 class="card-title text-center mb-4">Register Account</h4>
 
-            <label for="access-password" class="form-label">
-              Nhập mật mã:
-            </label>
+            <label for="access-password" class="form-label">Nhập mật mã:</label>
 
             <input
               type="password"
               id="access-password"
               class="form-control mb-3"
-              autocomplete="off"
-            >
+              autocomplete="off">
 
             <button
               type="button"
@@ -54,19 +50,14 @@
               style="display: none;">
               Mật mã không đúng!
             </div>
-
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-
-  <!-- Nội dung Register Account -->
   <div id="register-screen" style="display: none;">
 
-    <!-- Menu de navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-dark">
       <div class="container-fluid">
 
@@ -80,7 +71,6 @@
           aria-controls="navbarNav"
           aria-expanded="false"
           aria-label="Toggle navigation">
-
           <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -107,7 +97,6 @@
       </div>
     </nav>
 
-
     <div class="container">
       <div class="row justify-content-center">
         <div class="col-md-6">
@@ -127,7 +116,6 @@
                 required>
             </div>
 
-
             <div class="mb-3">
               <label for="password" class="form-label">
                 Account Password:
@@ -140,7 +128,6 @@
                 class="form-control"
                 required>
             </div>
-
 
             <div class="mb-3">
               <label for="displayName" class="form-label">
@@ -155,7 +142,6 @@
                 required>
             </div>
 
-
             <div class="mb-3">
               <label for="server" class="form-label">
                 Server:
@@ -169,7 +155,6 @@
                 required>
             </div>
 
-
             <button type="submit" class="btn btn-primary">
               Register
             </button>
@@ -181,7 +166,6 @@
     </div>
 
   </div>
-
 
   <script>
 
@@ -198,72 +182,140 @@
     const passwordButton = document.getElementById("password-button");
     const passwordError = document.getElementById("password-error");
 
-
     function checkAccessPassword() {
-
       if (accessPassword.value === ACCESS_PASSWORD) {
-
-        // Đúng mật mã
         passwordScreen.style.display = "none";
         registerScreen.style.display = "block";
-
       } else {
-
-        // Sai mật mã
         passwordError.style.display = "block";
         accessPassword.value = "";
         accessPassword.focus();
-
       }
     }
 
-
     passwordButton.addEventListener("click", checkAccessPassword);
 
-
     accessPassword.addEventListener("keydown", function(event) {
-
       if (event.key === "Enter") {
         checkAccessPassword();
       }
-
     });
+
+
+    // ==========================================
+    // SUPABASE
+    // ==========================================
+
+    const SUPABASE_URL =
+      "https://zpckuqwmoafyxuasosqh.supabase.co";
+
+    // CHỈ THAY GIÁ TRỊ NÀY BẰNG PUBLISHABLE / ANON KEY
+    const SUPABASE_KEY =
+      "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFOY";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
 
     // ==========================================
     // REGISTER ACCOUNT
     // ==========================================
 
-    const loginForm = document.getElementById("login-form");
+    const loginForm =
+      document.getElementById("login-form");
 
-    loginForm.addEventListener("submit", event => {
+    loginForm.addEventListener("submit", async event => {
 
       event.preventDefault();
 
-      const username = loginForm.elements.username.value;
-      const password = loginForm.elements.password.value;
-      const server = loginForm.elements.server.value;
-      const displayName = loginForm.elements.displayName.value;
+      const username =
+        loginForm.elements.username.value.trim();
 
-      const authId = Date.now();
+      const password =
+        loginForm.elements.password.value;
 
-      const authInfo = {
-        id: authId,
-        username: username,
-        password: password,
-        server: server,
-        displayName: displayName
-      };
+      const server =
+        loginForm.elements.server.value;
 
-      const storedAuths =
-        JSON.parse(localStorage.getItem("auths")) || [];
+      const displayName =
+        loginForm.elements.displayName.value.trim();
 
-      storedAuths.push(authInfo);
+
+      if (!username || !password || !server || !displayName) {
+        alert("Vui lòng nhập đầy đủ thông tin.");
+        return;
+      }
+
+
+      const authId = Date.now().toString();
+
+
+      // Lưu vào Supabase
+      const { error } = await supabaseClient
+        .from("auths")
+        .insert([{
+          id: authId,
+          username: username,
+          password: password,
+          server: server,
+          name: displayName
+        }]);
+
+
+      if (error) {
+
+        console.error("Supabase error:", error);
+
+        alert(
+          "Không thể lưu tài khoản vào Supabase.\n\n" +
+          error.message
+        );
+
+        return;
+      }
+
+
+      // Đồng bộ danh sách về localStorage
+      const { data: accounts, error: fetchError } =
+        await supabaseClient
+          .from("auths")
+          .select("*")
+          .order("created_at", { ascending: true });
+
+
+      if (fetchError) {
+
+        console.error(
+          "Không lấy được danh sách tài khoản:",
+          fetchError
+        );
+
+        alert(
+          "Tài khoản đã lưu lên Supabase " +
+          "nhưng không tải lại được danh sách."
+        );
+
+        return;
+      }
+
+
+      const auths = accounts.map(account => ({
+        id: account.id,
+        username: account.username,
+        password: account.password,
+        server: account.server,
+        displayName: account.name
+      }));
+
 
       localStorage.setItem(
         "auths",
-        JSON.stringify(storedAuths)
+        JSON.stringify(auths)
       );
+
 
       window.location.href = "listAccount.html";
 
@@ -273,3 +325,8 @@
 
 </body>
 </html>
+'''
+
+path = Path("/mnt/data/registerAccount.html")
+path.write_text(html, encoding="utf-8")
+print(f"Đã tạo: {path}")

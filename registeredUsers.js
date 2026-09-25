@@ -28,7 +28,98 @@ let auths = [];
 // LẤY TÀI KHOẢN TỪ SUPABASE
 // ==========================================
 
+async function ```javascript
 async function loadAuths() {
+
+  console.log("=== BẮT ĐẦU LOAD AUTHS ===");
+
+  try {
+
+    const { data, error } =
+      await supabaseClient
+        .from("auths")
+        .select("*")
+        .order("created_at", {
+          ascending: true
+        });
+
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+
+    if (error) {
+
+      console.error(
+        "Lỗi Supabase:",
+        error
+      );
+
+      alert(
+        "Lỗi Supabase:\n\n" +
+        error.message
+      );
+
+      return;
+    }
+
+    if (!data || data.length === 0) {
+
+      console.warn(
+        "Supabase trả về 0 tài khoản."
+      );
+
+      alert(
+        "Supabase không trả về tài khoản nào."
+      );
+
+      return;
+    }
+
+    // Chuyển dữ liệu
+    auths = data.map(account => ({
+
+      id: account.id,
+
+      username: account.username,
+
+      password: account.password,
+
+      server: account.server,
+
+      displayName: account.name
+
+    }));
+
+    console.log(
+      "AUTHS SAU KHI MAP:",
+      auths
+    );
+
+    // Lưu local
+    localStorage.setItem(
+      "auths",
+      JSON.stringify(auths)
+    );
+
+    // Hiển thị
+    displayAuths();
+
+  } catch (error) {
+
+    console.error(
+      "EXCEPTION:",
+      error
+    );
+
+    alert(
+      "Lỗi JavaScript:\n\n" +
+      error.message
+    );
+
+  }
+
+}
+```
+
 
   try {
 

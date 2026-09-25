@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Run bot - XZTW Bot Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">XZTW Bot Manager</a>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Run bot</h2>
+    <a href="/dashboard" class="btn btn-secondary">← Dashboard</a>
+  </div>
+
+  <div id="loading" class="text-center py-4">
+    <div class="spinner-border" role="status"></div>
+    <p class="mt-2">Loading scripts...</p>
+  </div>
+
+  <div id="controls" class="d-none">
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <button class="btn btn-success" onclick="auto()">Run Daily Auto</button>
+      <button class="btn btn-danger" onclick="autoNew()">autoDot</button>
+      <button class="btn btn-warning" onclick="autoXingtian()">Xingtian</button>
+      <button class="btn btn-info" onclick="autoCot()">Auto Local CoT</button>
+      <button class="btn btn-info" onclick="autoCotHeavenly()">Auto Heavenly</button>
+      <button class="btn btn-info" onclick="autoCotCS()">Auto CS</button>
+      <button class="btn btn-info" onclick="autoCotStorm()">Auto Storm</button>
+      <button class="btn btn-info" onclick="autoCotACS()">Auto ACS</button>
+      <button class="btn btn-primary" onclick="autoManualCot()">Manual Local</button>
+      <button class="btn btn-primary" onclick="autoManualCotCS()">Manual CS</button>
+      <button class="btn btn-primary" onclick="autoManualCotStorm()">Manual Storm</button>
+      <button class="btn btn-warning" onclick="autoPeachEvent()">Peach</button>
+      <button class="btn btn-warning" onclick="autoChaosBattle()">Chaos</button>
+      <button class="btn btn-warning" onclick="autoSwordFly()">SwordFly</button>
+      <button class="btn btn-warning" onclick="autoBuildConquestReq()">Build islands</button>
+      <button class="btn btn-warning" onclick="autoPutTroopsConquestReq()">Add atk troops</button>
+      <button class="btn btn-warning" onclick="autoPutDefTroopsConquestReq()">Add def troops</button>
+    </div>
+
+    <h5>Logs</h5>
+    <div id="actions" style="height:300px;resize:vertical;overflow-y:auto;border:1px solid #444;padding:10px;border-radius:5px;background:#1a1a1a;"></div>
+  </div>
+</div>
+
+<script>
+function loadScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Failed to load: ' + src));
+    document.body.appendChild(s);
+  });
+}
+
+async function init() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) {
+    document.getElementById('loading').innerHTML = '<p class="text-danger">Missing account id</p>';
+    return;
+  }
+
+  try {
+    // Step 1: Load library scripts in order
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/pako/1.0.11/pako.min.js');
+    await loadScript('/lib/crypto-js.min.js');
+    await loadScript('/lib/jquery.min.js');
+    await loadScript('/lib/encrypt.js');
+    await loadScript('/lib/getToken.js');
+    await loadScript('/lib/servants.js');
+    await loadScript('/lib/miniEvents.js');
+
+    // Step 2: Fetch account data
+    const res = await fetch('/api/accounts/' + id);
+    if (!res.ok) throw new Error('Account not found');
+    const account = await res.json();
+
+    // Step 3: Set localStorage
+    localStorage.setItem('gameVersion', '3.10.2');
+    localStorage.setItem('auths', JSON.stringify([{
+      username: account.username,
+      password: account.password,
+      server: account.server,
+      displayName: account.display_name,
+      formdata: account.settings || {}
+    }]));
+
+    // Step 4: Update URL
+    history.replaceState(null, '', '/run?id=' + id + '&userIndex=0');
+
+    // Step 5: Load auto scripts in order
+    await loadScript('/auto/webBrowser.js');
+    await loadScript('/auto/auto.js');
+    await loadScript('/auto/autoV2.js');
+    await loadScript('/auto/autoV3.js');
+
+    // Show controls
+    document.getElementById('loading').classList.add('d-none');
+    document.getElementById('controls').classList.remove('d-none');
+  } catch (err) {
+    document.getElementById('loading').innerHTML = '<p class="text-danger">Error: ' + err.message + '</p>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

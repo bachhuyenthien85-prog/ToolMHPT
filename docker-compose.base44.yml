@@ -1,14 +1,14 @@
 services:
   web:
-    image: nginx:alpine
-    user: "0:0"
-    ports:
-      - "3000:80"
+    image: node:22-slim
+    working_dir: /app
     volumes:
-      - ./:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && node --watch server/server.js"
     healthcheck:
-      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      test: ["CMD", "node", "-e", "const http=require('http');http.get('http://localhost:3000/api/accounts',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
       interval: 5s
       timeout: 3s
       retries: 10

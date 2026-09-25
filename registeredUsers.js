@@ -6,7 +6,6 @@
 const SUPABASE_URL =
   "https://zpckuqwmoafyxuasosqh.supabase.co";
 
-// DÁN PUBLISHABLE / ANON KEY CỦA BẠN VÀO ĐÂY
 const SUPABASE_KEY =
   "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFO";
 
@@ -21,9 +20,6 @@ const supabaseClient =
 // ==========================================
 
 let auths = [];
-
-let authList =
-  document.getElementById("auths-container");
 
 // ==========================================
 // LẤY TÀI KHOẢN TỪ SUPABASE
@@ -48,8 +44,6 @@ async function loadAuths() {
         error
       );
 
-      // Nếu Supabase lỗi thì dùng dữ liệu
-      // localStorage hiện có
       auths =
         JSON.parse(
           window.localStorage.getItem("auths")
@@ -65,25 +59,22 @@ async function loadAuths() {
       return;
     }
 
-    // Chuyển dữ liệu Supabase về format
-    // mà code cũ của ToolMHPT đang sử dụng
-    auths = data.map(account => ({
+    auths = data.map(
+      account => ({
 
-      id: account.id,
+        id: account.id,
 
-      username: account.username,
+        username: account.username,
 
-      password: account.password,
+        password: account.password,
 
-      server: account.server,
+        server: account.server,
 
-      displayName: account.name
+        displayName: account.name
 
-    }));
+      })
+    );
 
-    // Lưu bản sao trên thiết bị
-    // để các chức năng Auto hiện tại
-    // vẫn tiếp tục sử dụng được
     window.localStorage.setItem(
       "auths",
       JSON.stringify(auths)
@@ -115,7 +106,7 @@ async function loadAuths() {
 
 function displayAuths() {
 
-  let authList =
+  const authList =
     document.getElementById("auths-list");
 
   if (!authList) {
@@ -128,7 +119,7 @@ function displayAuths() {
   // TẠO TABLE
   // ========================================
 
-  let table =
+  const table =
     document.createElement("table");
 
   table.classList.add(
@@ -143,22 +134,22 @@ function displayAuths() {
   // HEADER
   // ========================================
 
-  let headers =
+  const headers =
     table.createTHead().insertRow();
 
-  let nameHeader =
+  const nameHeader =
     headers.insertCell();
 
   nameHeader.textContent =
     "name";
 
-  let serverHeader =
+  const serverHeader =
     headers.insertCell();
 
   serverHeader.textContent =
     "server";
 
-  let pageHeader =
+  const pageHeader =
     headers.insertCell();
 
   pageHeader.textContent =
@@ -168,237 +159,262 @@ function displayAuths() {
   // DANH SÁCH ACCOUNT
   // ========================================
 
-  auths.forEach((auth, index) => {
+  auths.forEach(
+    (auth, index) => {
 
-    let row =
-      table.insertRow();
+      const row =
+        table.insertRow();
 
-    // NAME
-    let nameCell =
-      row.insertCell();
+      // ====================================
+      // NAME
+      // ====================================
 
-    nameCell.textContent =
-      auth.displayName;
+      const nameCell =
+        row.insertCell();
 
-    // SERVER
-    let serverCell =
-      row.insertCell();
+      nameCell.textContent =
+        auth.displayName;
 
-    serverCell.textContent =
-      auth.server;
+      // ====================================
+      // SERVER
+      // ====================================
 
-    // BUTTONS
-    let pageCell =
-      row.insertCell();
+      const serverCell =
+        row.insertCell();
 
-    // ======================================
-    // OPEN
-    // ======================================
+      serverCell.textContent =
+        auth.server;
 
-    let button =
-      document.createElement("button");
+      // ====================================
+      // BUTTONS
+      // ====================================
 
-    button.classList.add(
-      "btn",
-      "btn-primary"
-    );
+      const pageCell =
+        row.insertCell();
 
-    button.textContent =
-      "Open";
+      // ====================================
+      // OPEN
+      // ====================================
 
-    button.addEventListener(
-      "click",
-      () => {
-
-        window.open(
-          `user.html?userIndex=${index}`,
-          "_blank"
+      const button =
+        document.createElement(
+          "button"
         );
 
-      }
-    );
+      button.classList.add(
+        "btn",
+        "btn-primary"
+      );
 
-    pageCell.appendChild(button);
+      button.textContent =
+        "Open";
 
-    // ======================================
-    // EDIT
-    // ======================================
+      button.addEventListener(
+        "click",
+        () => {
 
-    let editUser =
-      document.createElement("button");
-
-    editUser.classList.add(
-      "btn",
-      "btn-primary",
-      "mx-2"
-    );
-
-    editUser.textContent =
-      "Edit";
-
-    editUser.addEventListener(
-      "click",
-      () => {
-
-        window.open(
-          `edit.html?userIndex=${index}`,
-          "_blank"
-        );
-
-      }
-    );
-
-    pageCell.appendChild(editUser);
-
-    // ======================================
-    // WEB VERSION
-    // ======================================
-
-    let webVersion =
-      document.createElement("button");
-
-    webVersion.classList.add(
-      "btn",
-      "btn-info",
-      "mx-2"
-    );
-
-    webVersion.textContent =
-      "webVersion";
-
-    webVersion.addEventListener(
-      "click",
-      () => {
-
-        webBrowser(
-          auth.username,
-          auth.password
-        );
-
-      }
-    );
-
-    pageCell.appendChild(webVersion);
-
-    // ======================================
-    // UP
-    // ======================================
-
-    let moveUpButton =
-      document.createElement("button");
-
-    moveUpButton.classList.add(
-      "btn",
-      "btn-success",
-      "mx-2"
-    );
-
-    moveUpButton.textContent =
-      "Up";
-
-    moveUpButton.addEventListener(
-      "click",
-      () => {
-
-        if (index > 0) {
-
-          [
-            auths[index],
-            auths[index - 1]
-          ] =
-          [
-            auths[index - 1],
-            auths[index]
-          ];
-
-          window.localStorage.setItem(
-            "auths",
-            JSON.stringify(auths)
+          window.open(
+            `user.html?userIndex=${index}`,
+            "_blank"
           );
 
-          displayAuths();
-
         }
+      );
 
-      }
-    );
+      pageCell.appendChild(
+        button
+      );
 
-    // ======================================
-    // DOWN
-    // ======================================
+      // ====================================
+      // EDIT
+      // ====================================
 
-    let moveDownButton =
-      document.createElement("button");
+      const editUser =
+        document.createElement(
+          "button"
+        );
 
-    moveDownButton.classList.add(
-      "btn",
-      "btn-warning",
-      "mx-2"
-    );
+      editUser.classList.add(
+        "btn",
+        "btn-primary",
+        "mx-2"
+      );
 
-    moveDownButton.textContent =
-      "Down";
+      editUser.textContent =
+        "Edit";
 
-    moveDownButton.addEventListener(
-      "click",
-      () => {
+      editUser.addEventListener(
+        "click",
+        () => {
 
-        if (
-          index <
-          auths.length - 1
-        ) {
-
-          [
-            auths[index],
-            auths[index + 1]
-          ] =
-          [
-            auths[index + 1],
-            auths[index]
-          ];
-
-          window.localStorage.setItem(
-            "auths",
-            JSON.stringify(auths)
+          window.open(
+            `edit.html?userIndex=${index}`,
+            "_blank"
           );
 
-          displayAuths();
+        }
+      );
+
+      pageCell.appendChild(
+        editUser
+      );
+
+      // ====================================
+      // WEB VERSION
+      // ====================================
+
+      const webVersion =
+        document.createElement(
+          "button"
+        );
+
+      webVersion.classList.add(
+        "btn",
+        "btn-info",
+        "mx-2"
+      );
+
+      webVersion.textContent =
+        "webVersion";
+
+      webVersion.addEventListener(
+        "click",
+        () => {
+
+          webBrowser(
+            auth.username,
+            auth.password
+          );
 
         }
+      );
 
-      }
-    );
+      pageCell.appendChild(
+        webVersion
+      );
 
-    pageCell.appendChild(
-      moveUpButton
-    );
+      // ====================================
+      // UP
+      // ====================================
 
-    pageCell.appendChild(
-      moveDownButton
-    );
+      const moveUpButton =
+        document.createElement(
+          "button"
+        );
 
-  });
+      moveUpButton.classList.add(
+        "btn",
+        "btn-success",
+        "mx-2"
+      );
+
+      moveUpButton.textContent =
+        "Up";
+
+      moveUpButton.addEventListener(
+        "click",
+        () => {
+
+          if (index > 0) {
+
+            [
+              auths[index],
+              auths[index - 1]
+            ] = [
+              auths[index - 1],
+              auths[index]
+            ];
+
+            window.localStorage.setItem(
+              "auths",
+              JSON.stringify(auths)
+            );
+
+            displayAuths();
+
+          }
+
+        }
+      );
+
+      pageCell.appendChild(
+        moveUpButton
+      );
+
+      // ====================================
+      // DOWN
+      // ====================================
+
+      const moveDownButton =
+        document.createElement(
+          "button"
+        );
+
+      moveDownButton.classList.add(
+        "btn",
+        "btn-warning",
+        "mx-2"
+      );
+
+      moveDownButton.textContent =
+        "Down";
+
+      moveDownButton.addEventListener(
+        "click",
+        () => {
+
+          if (
+            index <
+            auths.length - 1
+          ) {
+
+            [
+              auths[index],
+              auths[index + 1]
+            ] = [
+              auths[index + 1],
+              auths[index]
+            ];
+
+            window.localStorage.setItem(
+              "auths",
+              JSON.stringify(auths)
+            );
+
+            displayAuths();
+
+          }
+
+        }
+      );
+
+      pageCell.appendChild(
+        moveDownButton
+      );
+
+    }
+  );
 
   // ========================================
   // ĐƯA TABLE VÀO TRANG
   // ========================================
 
-  authList.appendChild(table);
+  authList.appendChild(
+    table
+  );
 
   // ========================================
   // SEARCH
   // ========================================
 
-  let searchInput =
+  const searchInput =
     document.getElementById(
       "search-input"
     );
 
   if (searchInput) {
 
-    // Xóa listener cũ bằng cách clone
-    // tránh bị đăng ký nhiều lần
-    let newSearchInput =
+    const newSearchInput =
       searchInput.cloneNode(true);
 
     searchInput.parentNode.replaceChild(
@@ -410,11 +426,13 @@ function displayAuths() {
       "input",
       () => {
 
-        let filter =
+        const filter =
           newSearchInput.value.toUpperCase();
 
-        let rows =
-          table.getElementsByTagName("tr");
+        const rows =
+          table.getElementsByTagName(
+            "tr"
+          );
 
         for (
           let i = 1;
@@ -422,12 +440,13 @@ function displayAuths() {
           i++
         ) {
 
-          let cells =
+          const cells =
             rows[i].getElementsByTagName(
               "td"
             );
 
-          let visible = false;
+          let visible =
+            false;
 
           for (
             let j = 0;
@@ -435,7 +454,7 @@ function displayAuths() {
             j++
           ) {
 
-            let cell =
+            const cell =
               cells[j];
 
             if (
@@ -445,6 +464,7 @@ function displayAuths() {
             ) {
 
               visible = true;
+
               break;
 
             }

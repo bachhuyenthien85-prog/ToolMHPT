@@ -6,6 +6,7 @@
 const SUPABASE_URL =
   "https://zpckuqwmoafyxuasosqh.supabase.co";
 
+// DÁN PUBLISHABLE / ANON KEY CỦA BẠN VÀO ĐÂY
 const SUPABASE_KEY =
   "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFO";
 
@@ -15,13 +16,14 @@ const supabaseClient =
     SUPABASE_KEY
   );
 
-
 // ==========================================
 // DANH SÁCH AUTH
 // ==========================================
 
 let auths = [];
 
+let authList =
+  document.getElementById("auths-container");
 
 // ==========================================
 // LẤY TÀI KHOẢN TỪ SUPABASE
@@ -39,7 +41,6 @@ async function loadAuths() {
           ascending: true
         });
 
-
     if (error) {
 
       console.error(
@@ -47,6 +48,8 @@ async function loadAuths() {
         error
       );
 
+      // Nếu Supabase lỗi thì dùng dữ liệu
+      // localStorage hiện có
       auths =
         JSON.parse(
           window.localStorage.getItem("auths")
@@ -62,11 +65,8 @@ async function loadAuths() {
       return;
     }
 
-
-    // ========================================
-    // CHUYỂN DỮ LIỆU SUPABASE
-    // ========================================
-
+    // Chuyển dữ liệu Supabase về format
+    // mà code cũ của ToolMHPT đang sử dụng
     auths = data.map(account => ({
 
       id: account.id,
@@ -81,16 +81,13 @@ async function loadAuths() {
 
     }));
 
-
-    // ========================================
-    // LƯU LOCAL
-    // ========================================
-
+    // Lưu bản sao trên thiết bị
+    // để các chức năng Auto hiện tại
+    // vẫn tiếp tục sử dụng được
     window.localStorage.setItem(
       "auths",
       JSON.stringify(auths)
     );
-
 
     displayAuths();
 
@@ -112,14 +109,13 @@ async function loadAuths() {
 
 }
 
-
 // ==========================================
 // HIỂN THỊ DANH SÁCH
 // ==========================================
 
 function displayAuths() {
 
-  const authList =
+  let authList =
     document.getElementById("auths-list");
 
   if (!authList) {
@@ -128,12 +124,11 @@ function displayAuths() {
 
   authList.innerHTML = "";
 
-
   // ========================================
   // TẠO TABLE
   // ========================================
 
-  const table =
+  let table =
     document.createElement("table");
 
   table.classList.add(
@@ -144,35 +139,30 @@ function displayAuths() {
   table.style.borderCollapse =
     "collapse";
 
-
   // ========================================
   // HEADER
   // ========================================
 
-  const headers =
+  let headers =
     table.createTHead().insertRow();
 
-
-  const nameHeader =
+  let nameHeader =
     headers.insertCell();
 
   nameHeader.textContent =
     "name";
 
-
-  const serverHeader =
+  let serverHeader =
     headers.insertCell();
 
   serverHeader.textContent =
     "server";
 
-
-  const pageHeader =
+  let pageHeader =
     headers.insertCell();
 
   pageHeader.textContent =
     "auto page";
-
 
   // ========================================
   // DANH SÁCH ACCOUNT
@@ -180,36 +170,32 @@ function displayAuths() {
 
   auths.forEach((auth, index) => {
 
-    const row =
+    let row =
       table.insertRow();
 
-
     // NAME
-    const nameCell =
+    let nameCell =
       row.insertCell();
 
     nameCell.textContent =
-      auth.displayName || "";
-
+      auth.displayName;
 
     // SERVER
-    const serverCell =
+    let serverCell =
       row.insertCell();
 
     serverCell.textContent =
-      auth.server || "";
-
+      auth.server;
 
     // BUTTONS
-    const pageCell =
+    let pageCell =
       row.insertCell();
-
 
     // ======================================
     // OPEN
     // ======================================
 
-    const button =
+    let button =
       document.createElement("button");
 
     button.classList.add(
@@ -234,12 +220,11 @@ function displayAuths() {
 
     pageCell.appendChild(button);
 
-
     // ======================================
     // EDIT
     // ======================================
 
-    const editUser =
+    let editUser =
       document.createElement("button");
 
     editUser.classList.add(
@@ -265,12 +250,11 @@ function displayAuths() {
 
     pageCell.appendChild(editUser);
 
-
     // ======================================
     // WEB VERSION
     // ======================================
 
-    const webVersion =
+    let webVersion =
       document.createElement("button");
 
     webVersion.classList.add(
@@ -296,12 +280,11 @@ function displayAuths() {
 
     pageCell.appendChild(webVersion);
 
-
     // ======================================
     // UP
     // ======================================
 
-    const moveUpButton =
+    let moveUpButton =
       document.createElement("button");
 
     moveUpButton.classList.add(
@@ -340,12 +323,11 @@ function displayAuths() {
       }
     );
 
-
     // ======================================
     // DOWN
     // ======================================
 
-    const moveDownButton =
+    let moveDownButton =
       document.createElement("button");
 
     moveDownButton.classList.add(
@@ -387,7 +369,6 @@ function displayAuths() {
       }
     );
 
-
     pageCell.appendChild(
       moveUpButton
     );
@@ -398,26 +379,26 @@ function displayAuths() {
 
   });
 
-
   // ========================================
   // ĐƯA TABLE VÀO TRANG
   // ========================================
 
   authList.appendChild(table);
 
-
   // ========================================
   // SEARCH
   // ========================================
 
-  const searchInput =
+  let searchInput =
     document.getElementById(
       "search-input"
     );
 
   if (searchInput) {
 
-    const newSearchInput =
+    // Xóa listener cũ bằng cách clone
+    // tránh bị đăng ký nhiều lần
+    let newSearchInput =
       searchInput.cloneNode(true);
 
     searchInput.parentNode.replaceChild(
@@ -429,12 +410,11 @@ function displayAuths() {
       "input",
       () => {
 
-        const filter =
+        let filter =
           newSearchInput.value.toUpperCase();
 
-        const rows =
+        let rows =
           table.getElementsByTagName("tr");
-
 
         for (
           let i = 1;
@@ -442,13 +422,12 @@ function displayAuths() {
           i++
         ) {
 
-          const cells =
+          let cells =
             rows[i].getElementsByTagName(
               "td"
             );
 
           let visible = false;
-
 
           for (
             let j = 0;
@@ -456,7 +435,7 @@ function displayAuths() {
             j++
           ) {
 
-            const cell =
+            let cell =
               cells[j];
 
             if (
@@ -472,7 +451,6 @@ function displayAuths() {
 
           }
 
-
           rows[i].style.display =
             visible ? "" : "none";
 
@@ -484,7 +462,6 @@ function displayAuths() {
   }
 
 }
-
 
 // ==========================================
 // CHẠY KHI MỞ LIST ACCOUNT

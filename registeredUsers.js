@@ -1,3 +1,4 @@
+```javascript
 // ==========================================
 // SUPABASE
 // ==========================================
@@ -5,7 +6,7 @@
 const SUPABASE_URL =
   "https://zpckuqwmoafyxuasosqh.supabase.co";
 
-// DÁN PUBLISHABLE / ANON KEY CỦA BẠN VÀO ĐÂY
+// Publishable / Anon key
 const SUPABASE_KEY =
   "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFO";
 
@@ -22,9 +23,6 @@ const supabaseClient =
 
 let auths = [];
 
-let authList =
-  document.getElementById("auths-container");
-
 
 // ==========================================
 // LẤY TÀI KHOẢN TỪ SUPABASE
@@ -34,10 +32,17 @@ async function loadAuths() {
 
   try {
 
+    // ========================================
+    // QUAN TRỌNG:
+    // KHÔNG lấy password
+    // ========================================
+
     const { data, error } =
       await supabaseClient
         .from("auths")
-        .select("*")
+        .select(
+          "id, username, server, name, created_at"
+        )
         .order("created_at", {
           ascending: true
         });
@@ -51,11 +56,29 @@ async function loadAuths() {
       );
 
       // Nếu Supabase lỗi thì dùng dữ liệu
-      // localStorage hiện có
-      auths =
+      // localStorage hiện có.
+      //
+      // Tuy nhiên dữ liệu cũ có thể vẫn chứa password,
+      // nên loại bỏ password trước khi sử dụng.
+
+      const localData =
         JSON.parse(
           window.localStorage.getItem("auths")
         ) || [];
+
+      auths = localData.map(account => ({
+        id: account.id,
+        username: account.username,
+        server: account.server,
+        displayName: account.displayName
+      }));
+
+      // Ghi đè localStorage bằng dữ liệu
+      // KHÔNG có password.
+      window.localStorage.setItem(
+        "auths",
+        JSON.stringify(auths)
+      );
 
       displayAuths();
 
@@ -68,15 +91,16 @@ async function loadAuths() {
     }
 
 
-    // Chuyển dữ liệu Supabase về format
-    // mà code cũ của ToolMHPT đang sử dụng
+    // ========================================
+    // Chuyển dữ liệu Supabase
+    // KHÔNG chứa password
+    // ========================================
+
     auths = data.map(account => ({
 
       id: account.id,
 
       username: account.username,
-
-      password: account.password,
 
       server: account.server,
 
@@ -85,9 +109,11 @@ async function loadAuths() {
     }));
 
 
-    // Lưu bản sao trên thiết bị
-    // để các chức năng Auto hiện tại
-    // vẫn tiếp tục sử dụng được
+    // ========================================
+    // LƯU LOCALSTORAGE
+    // KHÔNG CÓ PASSWORD
+    // ========================================
+
     window.localStorage.setItem(
       "auths",
       JSON.stringify(auths)
@@ -103,10 +129,37 @@ async function loadAuths() {
       error
     );
 
-    auths =
+
+    // ========================================
+    // FALLBACK LOCALSTORAGE
+    // ========================================
+
+    const localData =
       JSON.parse(
         window.localStorage.getItem("auths")
       ) || [];
+
+
+    // Loại bỏ password khỏi dữ liệu cũ
+    auths = localData.map(account => ({
+
+      id: account.id,
+
+      username: account.username,
+
+      server: account.server,
+
+      displayName: account.displayName
+
+    }));
+
+
+    // Ghi lại localStorage sạch
+    window.localStorage.setItem(
+      "auths",
+      JSON.stringify(auths)
+    );
+
 
     displayAuths();
 
@@ -121,7 +174,7 @@ async function loadAuths() {
 
 function displayAuths() {
 
-  let authList =
+  const authList =
     document.getElementById("auths-list");
 
   if (!authList) {
@@ -135,7 +188,7 @@ function displayAuths() {
   // TẠO TABLE
   // ========================================
 
-  let table =
+  const table =
     document.createElement("table");
 
   table.classList.add(
@@ -151,25 +204,25 @@ function displayAuths() {
   // HEADER
   // ========================================
 
-  let headers =
+  const headers =
     table.createTHead().insertRow();
 
 
-  let nameHeader =
+  const nameHeader =
     headers.insertCell();
 
   nameHeader.textContent =
     "name";
 
 
-  let serverHeader =
+  const serverHeader =
     headers.insertCell();
 
   serverHeader.textContent =
     "server";
 
 
-  let pageHeader =
+  const pageHeader =
     headers.insertCell();
 
   pageHeader.textContent =
@@ -182,28 +235,37 @@ function displayAuths() {
 
   auths.forEach((auth, index) => {
 
-    let row =
+    const row =
       table.insertRow();
 
 
+    // ======================================
     // NAME
-    let nameCell =
+    // ======================================
+
+    const nameCell =
       row.insertCell();
 
     nameCell.textContent =
-      auth.displayName;
+      auth.displayName || "";
 
 
+    // ======================================
     // SERVER
-    let serverCell =
+    // ======================================
+
+    const serverCell =
       row.insertCell();
 
     serverCell.textContent =
-      auth.server;
+      auth.server || "";
 
 
+    // ======================================
     // BUTTONS
-    let pageCell =
+    // ======================================
+
+    const pageCell =
       row.insertCell();
 
 
@@ -211,7 +273,7 @@ function displayAuths() {
     // OPEN
     // ======================================
 
-    let button =
+    const button =
       document.createElement("button");
 
     button.classList.add(
@@ -241,7 +303,7 @@ function displayAuths() {
     // EDIT
     // ======================================
 
-    let editUser =
+    const editUser =
       document.createElement("button");
 
     editUser.classList.add(
@@ -272,7 +334,7 @@ function displayAuths() {
     // WEB VERSION
     // ======================================
 
-    let webVersion =
+    const webVersion =
       document.createElement("button");
 
     webVersion.classList.add(
@@ -284,13 +346,21 @@ function displayAuths() {
     webVersion.textContent =
       "webVersion";
 
+
     webVersion.addEventListener(
       "click",
       () => {
 
-        webBrowser(
-          auth.username,
-          auth.password
+        // ==================================
+        // KHÔNG CÒN auth.password Ở CLIENT
+        // ==================================
+        //
+        // Password phải được xử lý ở server/
+        // Edge Function nếu muốn bảo mật.
+        //
+
+        alert(
+          "Chức năng webVersion cần được chuyển sang xử lý phía server để không làm lộ password."
         );
 
       }
@@ -303,7 +373,7 @@ function displayAuths() {
     // UP
     // ======================================
 
-    let moveUpButton =
+    const moveUpButton =
       document.createElement("button");
 
     moveUpButton.classList.add(
@@ -314,6 +384,7 @@ function displayAuths() {
 
     moveUpButton.textContent =
       "Up";
+
 
     moveUpButton.addEventListener(
       "click",
@@ -349,7 +420,7 @@ function displayAuths() {
     // DOWN
     // ======================================
 
-    let moveDownButton =
+    const moveDownButton =
       document.createElement("button");
 
     moveDownButton.classList.add(
@@ -360,6 +431,7 @@ function displayAuths() {
 
     moveDownButton.textContent =
       "Down";
+
 
     moveDownButton.addEventListener(
       "click",
@@ -416,7 +488,7 @@ function displayAuths() {
   // SEARCH
   // ========================================
 
-  let searchInput =
+  const searchInput =
     document.getElementById(
       "search-input"
     );
@@ -424,9 +496,8 @@ function displayAuths() {
 
   if (searchInput) {
 
-    // Xóa listener cũ bằng cách clone
-    // tránh bị đăng ký nhiều lần
-    let newSearchInput =
+    // Xóa listener cũ
+    const newSearchInput =
       searchInput.cloneNode(true);
 
     searchInput.parentNode.replaceChild(
@@ -439,10 +510,10 @@ function displayAuths() {
       "input",
       () => {
 
-        let filter =
+        const filter =
           newSearchInput.value.toUpperCase();
 
-        let rows =
+        const rows =
           table.getElementsByTagName("tr");
 
 
@@ -452,7 +523,7 @@ function displayAuths() {
           i++
         ) {
 
-          let cells =
+          const cells =
             rows[i].getElementsByTagName(
               "td"
             );
@@ -466,7 +537,7 @@ function displayAuths() {
             j++
           ) {
 
-            let cell =
+            const cell =
               cells[j];
 
             if (
@@ -501,3 +572,4 @@ function displayAuths() {
 // ==========================================
 
 loadAuths();
+```

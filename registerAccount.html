@@ -1,29 +1,28 @@
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
-<html data-bs-theme="dark">
+<!DOCTYPE html>
+<html lang="vi" data-bs-theme="dark">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register Account</title>
-
-<script src="./crypto-js.min.js"></script>
-<script src="./encrypt.js"></script>
-<script src="./getToken.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script src="./registeredUsers.js"></script>
-    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
-    crossorigin="anonymous"></script>
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
     rel="stylesheet"
-    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYeM/SXH301p5ILy+dN9+nJOZ"
     crossorigin="anonymous">
+
+  <script src="./crypto-js.min.js"></script>
+  <script src="./encrypt.js"></script>
+  <script src="./getToken.js"></script>
+
+  <!-- Supabase phải được tải trước code bên dưới -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
+
+  <!-- ============================= -->
+  <!-- MẬT KHẨU TRUY CẬP -->
+  <!-- ============================= -->
 
   <div id="password-screen" class="container mt-5">
     <div class="row justify-content-center">
@@ -32,7 +31,9 @@ html = r'''<!DOCTYPE html>
           <div class="card-body">
             <h4 class="card-title text-center mb-4">Register Account</h4>
 
-            <label for="access-password" class="form-label">Nhập mật mã:</label>
+            <label for="access-password" class="form-label">
+              Nhập mật mã:
+            </label>
 
             <input
               type="password"
@@ -59,12 +60,19 @@ html = r'''<!DOCTYPE html>
     </div>
   </div>
 
+
+  <!-- ============================= -->
+  <!-- REGISTER ACCOUNT -->
+  <!-- ============================= -->
+
   <div id="register-screen" style="display: none;">
 
-    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
       <div class="container-fluid">
 
-        <a class="navbar-brand" href="#">EFAUNT</a>
+        <a class="navbar-brand" href="#">
+          EFAUNT
+        </a>
 
         <button
           class="navbar-toggler"
@@ -81,16 +89,18 @@ html = r'''<!DOCTYPE html>
           <ul class="navbar-nav">
 
             <li class="nav-item">
-              <a class="nav-link active"
-                 aria-current="page"
-                 href="registerAccount.html">
+              <a
+                class="nav-link active"
+                aria-current="page"
+                href="registerAccount.html">
                 Register Account
               </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link"
-                 href="listAccount.html">
+              <a
+                class="nav-link"
+                href="listAccount.html">
                 List Account
               </a>
             </li>
@@ -100,7 +110,8 @@ html = r'''<!DOCTYPE html>
       </div>
     </nav>
 
-    <div class="container">
+
+    <div class="container mt-4">
       <div class="row justify-content-center">
         <div class="col-md-6">
 
@@ -119,6 +130,7 @@ html = r'''<!DOCTYPE html>
                 required>
             </div>
 
+
             <div class="mb-3">
               <label for="password" class="form-label">
                 Account Password:
@@ -131,6 +143,7 @@ html = r'''<!DOCTYPE html>
                 class="form-control"
                 required>
             </div>
+
 
             <div class="mb-3">
               <label for="displayName" class="form-label">
@@ -145,6 +158,7 @@ html = r'''<!DOCTYPE html>
                 required>
             </div>
 
+
             <div class="mb-3">
               <label for="server" class="form-label">
                 Server:
@@ -158,7 +172,10 @@ html = r'''<!DOCTYPE html>
                 required>
             </div>
 
-            <button type="submit" class="btn btn-primary">
+
+            <button
+              type="submit"
+              class="btn btn-primary">
               Register
             </button>
 
@@ -170,6 +187,11 @@ html = r'''<!DOCTYPE html>
 
   </div>
 
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
+
   <script>
 
     // ==========================================
@@ -178,31 +200,57 @@ html = r'''<!DOCTYPE html>
 
     const ACCESS_PASSWORD = "Vunb7117@";
 
-    const passwordScreen = document.getElementById("password-screen");
-    const registerScreen = document.getElementById("register-screen");
+    const passwordScreen =
+      document.getElementById("password-screen");
 
-    const accessPassword = document.getElementById("access-password");
-    const passwordButton = document.getElementById("password-button");
-    const passwordError = document.getElementById("password-error");
+    const registerScreen =
+      document.getElementById("register-screen");
+
+    const accessPassword =
+      document.getElementById("access-password");
+
+    const passwordButton =
+      document.getElementById("password-button");
+
+    const passwordError =
+      document.getElementById("password-error");
+
 
     function checkAccessPassword() {
+
       if (accessPassword.value === ACCESS_PASSWORD) {
+
         passwordScreen.style.display = "none";
         registerScreen.style.display = "block";
+
       } else {
+
         passwordError.style.display = "block";
+
         accessPassword.value = "";
         accessPassword.focus();
+
       }
+
     }
 
-    passwordButton.addEventListener("click", checkAccessPassword);
 
-    accessPassword.addEventListener("keydown", function(event) {
-      if (event.key === "Enter") {
-        checkAccessPassword();
+    passwordButton.addEventListener(
+      "click",
+      checkAccessPassword
+    );
+
+
+    accessPassword.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (event.key === "Enter") {
+          checkAccessPassword();
+        }
+
       }
-    });
+    );
 
 
     // ==========================================
@@ -212,9 +260,11 @@ html = r'''<!DOCTYPE html>
     const SUPABASE_URL =
       "https://zpckuqwmoafyxuasosqh.supabase.co";
 
-    // CHỈ THAY GIÁ TRỊ NÀY BẰNG PUBLISHABLE / ANON KEY
+
+    // DÁN PUBLISHABLE / ANON KEY CỦA BẠN VÀO ĐÂY
     const SUPABASE_KEY =
-      "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFOY";
+      "sb_publishable_HnjSpv04hKVpUcorErxSYA_T9O-SUFO";
+
 
     const supabaseClient =
       window.supabase.createClient(
@@ -230,106 +280,158 @@ html = r'''<!DOCTYPE html>
     const loginForm =
       document.getElementById("login-form");
 
-    loginForm.addEventListener("submit", async event => {
 
-      event.preventDefault();
+    loginForm.addEventListener(
+      "submit",
+      async function(event) {
 
-      const username =
-        loginForm.elements.username.value.trim();
-
-      const password =
-        loginForm.elements.password.value;
-
-      const server =
-        loginForm.elements.server.value;
-
-      const displayName =
-        loginForm.elements.displayName.value.trim();
+        event.preventDefault();
 
 
-      if (!username || !password || !server || !displayName) {
-        alert("Vui lòng nhập đầy đủ thông tin.");
-        return;
-      }
+        const username =
+          loginForm.elements.username.value.trim();
+
+        const password =
+          loginForm.elements.password.value;
+
+        const server =
+          loginForm.elements.server.value;
+
+        const displayName =
+          loginForm.elements.displayName.value.trim();
 
 
-      const authId = Date.now().toString();
+        if (
+          !username ||
+          !password ||
+          !server ||
+          !displayName
+        ) {
+
+          alert(
+            "Vui lòng nhập đầy đủ thông tin."
+          );
+
+          return;
+        }
 
 
-      // Lưu vào Supabase
-      const { error } = await supabaseClient
-        .from("auths")
-        .insert([{
-          id: authId,
-          username: username,
-          password: password,
-          server: server,
-          name: displayName
-        }]);
+        const authId =
+          Date.now().toString();
 
 
-      if (error) {
+        // ======================================
+        // LƯU LÊN SUPABASE
+        // ======================================
 
-        console.error("Supabase error:", error);
+        const { error } =
+          await supabaseClient
+            .from("auths")
+            .insert([{
 
-        alert(
-          "Không thể lưu tài khoản vào Supabase.\n\n" +
-          error.message
+              id: authId,
+
+              username: username,
+
+              password: password,
+
+              server: server,
+
+              name: displayName
+
+            }]);
+
+
+        if (error) {
+
+          console.error(
+            "Supabase error:",
+            error
+          );
+
+          alert(
+            "Không thể lưu tài khoản vào Supabase.\n\n" +
+            error.message
+          );
+
+          return;
+        }
+
+
+        // ======================================
+        // TẢI LẠI DANH SÁCH
+        // ======================================
+
+        const {
+          data: accounts,
+          error: fetchError
+        } =
+          await supabaseClient
+            .from("auths")
+            .select("*")
+            .order(
+              "created_at",
+              {
+                ascending: true
+              }
+            );
+
+
+        if (fetchError) {
+
+          console.error(
+            "Không lấy được danh sách tài khoản:",
+            fetchError
+          );
+
+          alert(
+            "Tài khoản đã lưu lên Supabase " +
+            "nhưng không tải lại được danh sách."
+          );
+
+          return;
+        }
+
+
+        // ======================================
+        // ĐỒNG BỘ LOCALSTORAGE
+        // ======================================
+
+        const auths =
+          accounts.map(
+            account => ({
+
+              id: account.id,
+
+              username: account.username,
+
+              password: account.password,
+
+              server: account.server,
+
+              displayName: account.name
+
+            })
+          );
+
+
+        localStorage.setItem(
+          "auths",
+          JSON.stringify(auths)
         );
 
-        return;
+
+        // ======================================
+        // CHUYỂN SANG LIST ACCOUNT
+        // ======================================
+
+        window.location.href =
+          "listAccount.html";
+
       }
-
-
-      // Đồng bộ danh sách về localStorage
-      const { data: accounts, error: fetchError } =
-        await supabaseClient
-          .from("auths")
-          .select("*")
-          .order("created_at", { ascending: true });
-
-
-      if (fetchError) {
-
-        console.error(
-          "Không lấy được danh sách tài khoản:",
-          fetchError
-        );
-
-        alert(
-          "Tài khoản đã lưu lên Supabase " +
-          "nhưng không tải lại được danh sách."
-        );
-
-        return;
-      }
-
-
-      const auths = accounts.map(account => ({
-        id: account.id,
-        username: account.username,
-        password: account.password,
-        server: account.server,
-        displayName: account.name
-      }));
-
-
-      localStorage.setItem(
-        "auths",
-        JSON.stringify(auths)
-      );
-
-
-      window.location.href = "listAccount.html";
-
-    });
+    );
 
   </script>
 
 </body>
 </html>
-'''
-
-path = Path("/mnt/data/registerAccount.html")
-path.write_text(html, encoding="utf-8")
-print(f"Đã tạo: {path}")

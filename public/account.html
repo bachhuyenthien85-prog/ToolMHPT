@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account Configuration - XZTW Bot Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/dashboard">XZTW Bot Manager</a>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Account Configuration</h2>
+    <a href="/dashboard" class="btn btn-secondary">← Dashboard</a>
+  </div>
+  <div id="account-info" class="mb-4"></div>
+  <form id="config-form">
+    <div id="form-fields"></div>
+    <div class="mt-4 d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <button type="button" class="btn btn-danger" id="delete-btn">Delete</button>
+      <a href="/dashboard" class="btn btn-secondary">← Dashboard</a>
+    </div>
+  </form>
+</div>
+
+<script>
+const sections = [
+  {
+    title: 'Account Info',
+    fields: [
+      { id: 'display_name', label: 'Display Name', type: 'text', basic: true },
+      { id: 'username', label: 'Username', type: 'text', basic: true },
+      { id: 'password', label: 'Password', type: 'password', basic: true },
+      { id: 'server', label: 'Server', type: 'text', basic: true },
+    ]
+  },
+  {
+    title: 'Daily Tasks',
+    fields: [
+      { id: 'doAllAdsCheckbox', label: 'Run ads', type: 'checkbox' },
+      { id: 'doManLocCotCheckbox', label: 'Manual Local CoT', type: 'checkbox' },
+      { id: 'doManHeavenlyCotCheckbox', label: 'Manual Heavenly CoT', type: 'checkbox' },
+      { id: 'doManCSCotCheckbox', label: 'Manual CS CoT', type: 'checkbox' },
+      { id: 'doManStormCotCheckbox', label: 'Manual Storm CoT', type: 'checkbox' },
+      { id: 'doManACSCotCheckbox', label: 'Manual ACS CoT', type: 'checkbox' },
+      { id: 'doXtdCheckbox', label: 'Do Vanguard Generals task (14h-16h game time)', type: 'checkbox' },
+      { id: 'doAdventureCheckbox', label: 'Run adventure level 20 (60 times)', type: 'checkbox' },
+      { id: 'doBuildWoodCheckbox', label: 'BuildWood', type: 'checkbox' },
+      { id: 'readAndDelMailsCheckBox', label: 'Read/Del mails', type: 'checkbox' },
+      { id: 'doFLCheckbox', label: 'FL (no boost)', type: 'checkbox' },
+      { id: 'doRobFLCheckbox', label: 'Rob FL (only rob IA)', type: 'checkbox' },
+      { id: 'doCompeteCheckbox', label: 'Compete', type: 'checkbox' },
+      { id: 'doBreatheCheckbox', label: 'Breathe', type: 'checkbox' },
+      { id: 'doVisitCheckbox', label: 'Visit', type: 'checkbox' },
+      { id: 'doInteractCheckbox', label: 'Interact', type: 'checkbox' },
+      { id: 'doAccompanyCheckbox', label: 'Free accompany', type: 'checkbox' },
+      { id: 'doBrewCheckbox', label: 'Buy/brew once for sermon', type: 'checkbox' },
+      { id: 'doBUmapCheckbox', label: 'Buy/use map once for sermon', type: 'checkbox' },
+      { id: 'doRuinCheckbox', label: 'Do Ruin', type: 'checkbox' },
+      { id: 'doMaxDemonSealCheckbox', label: 'Do Demon Tower', type: 'checkbox' },
+      { id: 'usePCandITCheckbox', label: 'Use Primordial chest and Inspector token', type: 'checkbox' },
+      { id: 'doPantheonRewardCheckbox', label: 'Get Pantheon activity rewards', type: 'checkbox' },
+    ]
+  },
+  {
+    title: 'Tree & Chat',
+    fields: [
+      { id: 'doTreeCheckbox', label: 'Take care of friend trees', type: 'checkbox' },
+      { id: 'doTreeIds', label: 'Friend(s) id(s)', type: 'text', placeholder: 'id1,id2' },
+      { id: 'doPchatCheckbox', label: 'Pantheon chat', type: 'checkbox' },
+      { id: 'pantheonWord', label: 'Chat message', type: 'text' },
+      { id: 'doChaosCheckbox', label: 'Do Chaos', type: 'checkbox' },
+    ]
+  },
+  {
+    title: 'Events & Worship',
+    fields: [
+      { id: 'doInteractEventCheckbox', label: 'Interact for event rebate', type: 'checkbox' },
+      { id: 'doInteractEventNumber', label: 'Number of pills to use', type: 'number' },
+      { id: 'doWorshipCheckbox', label: 'Worship', type: 'checkbox' },
+      { id: 'doWorshipId', label: 'Worship id', type: 'number' },
+      { id: 'doBeastCheckbox', label: 'Beast seal', type: 'checkbox' },
+      { id: 'beastLevel', label: 'Beast seal level', type: 'number' },
+      { id: 'doHellCheckbox', label: 'Hell', type: 'checkbox' },
+      { id: 'hellNumber', label: 'Hell number of attempts', type: 'number' },
+    ]
+  },
+  {
+    title: 'Spirit & VV',
+    fields: [
+      { id: 'doSPCheckbox', label: 'Spirit pact', type: 'checkbox' },
+      { id: 'spNumber', label: 'Spirit pact Number', type: 'number' },
+      { id: 'doSTCheckbox', label: 'Spirit troop', type: 'checkbox' },
+      { id: 'stNumber', label: 'Spirit troop Number', type: 'number' },
+      { id: 'doVVCheckbox', label: 'VV', type: 'checkbox' },
+      { id: 'vvNumber', label: 'VV stage (example 124)', type: 'number' },
+    ]
+  },
+  {
+    title: 'Market Beast Resources',
+    fields: [
+      { id: 'beastForageCheckbox', label: 'Beast Forage (price 500/u)', type: 'checkbox' },
+      { id: 'beastForageQuantity', label: 'Beast Forage quantity', type: 'number' },
+      { id: 'heavenIntPillCheckbox', label: 'Heaven int. pill (price 300/u)', type: 'checkbox' },
+      { id: 'heavenIntPillQuantity', label: 'Heaven int. pill quantity', type: 'number' },
+      { id: 'headenCrystalCheckbox', label: 'Heaven Crystal (price 1500/u)', type: 'checkbox' },
+      { id: 'headenCrystalQuantity', label: 'Heaven Crystal quantity', type: 'number' },
+    ]
+  },
+  {
+    title: 'Boutique & XT Shop',
+    fields: [
+      { id: 'doBoutiqueCheckbox', label: 'Buy springs in boutique', type: 'checkbox' },
+      { id: 'useBoutiqueKeyCheckbox', label: 'Use boutique keys', type: 'checkbox' },
+      { id: 'doXTshopCheckbox', label: 'Buy XT shop', type: 'checkbox' },
+    ]
+  },
+  {
+    title: 'Hell Shop',
+    fields: [
+      { id: 'hellBfCheckbox', label: 'Beast Forage', type: 'checkbox' },
+      { id: 'hellBfQuantity', label: 'Beast Forage quantity', type: 'number' },
+      { id: 'hellHpCheckbox', label: 'Heaven int. pill', type: 'checkbox' },
+      { id: 'hellHpQuantity', label: 'Heaven int. pill quantity', type: 'number' },
+      { id: 'hellHcCheckbox', label: 'Heaven Crystal', type: 'checkbox' },
+      { id: 'hellHcQuantity', label: 'Heaven Crystal quantity', type: 'number' },
+    ]
+  },
+  {
+    title: 'Ruin & Alliance Shop',
+    fields: [
+      { id: 'buyLimitedRuinShopCheckbox', label: 'Buy all max limited Ruin shop', type: 'checkbox' },
+      { id: 'buyLimitedAllianceShopCheckbox', label: 'Buy all max limited alliance shop', type: 'checkbox' },
+      { id: 'originEssenceCheckbox', label: 'Origin essence', type: 'checkbox' },
+      { id: 'originEssenceQuantity', label: 'Origin essence quantity', type: 'number' },
+      { id: 'originSoulCheckbox', label: 'Origin soul', type: 'checkbox' },
+      { id: 'originSoulQuantity', label: 'Origin soul quantity', type: 'number' },
+      { id: 'originPsicrystalCheckbox', label: 'Origin psicrystal', type: 'checkbox' },
+      { id: 'originPsicrystalQuantity', label: 'Origin psicrystal quantity', type: 'number' },
+      { id: 'originGritCheckbox', label: 'Origin grit', type: 'checkbox' },
+      { id: 'originGritQuantity', label: 'Origin grit quantity', type: 'number' },
+    ]
+  },
+  {
+    title: 'Compete Shop',
+    fields: [
+      { id: 'buyCompeteP4H1Checkbox', label: 'Pill of Four Heavens (200x2)', type: 'checkbox' },
+      { id: 'buyCompeteTPP1Checkbox', label: 'Talent Pill Piece (160x2)', type: 'checkbox' },
+      { id: 'buyCompeteP4H2Checkbox', label: 'Pill of Four Heavens (250x3)', type: 'checkbox' },
+      { id: 'buyCompeteTPP2Checkbox', label: 'Talent Pill Piece (200x3)', type: 'checkbox' },
+    ]
+  },
+  {
+    title: 'Conquest',
+    fields: [
+      { id: 'atkTroopsConquestValue', label: 'Atk troops', type: 'select', options: [
+        { value: '100000', label: '100k' },
+        { value: '1000000', label: '1M' },
+        { value: '10000000', label: '10M' },
+        { value: '100000000', label: '100M' },
+      ]},
+      { id: 'defTroopsConquestValue', label: 'Def troops', type: 'select', options: [
+        { value: '100000', label: '100k' },
+        { value: '1000000', label: '1M' },
+        { value: '10000000', label: '10M' },
+        { value: '100000000', label: '100M' },
+      ]},
+    ]
+  },
+];
+
+function generateForm() {
+  const container = document.getElementById('form-fields');
+  sections.forEach((section, si) => {
+    const card = document.createElement('div');
+    card.className = 'card bg-dark text-light border-secondary mb-3';
+    card.innerHTML = `<div class="card-header">${section.title}</div>`;
+    const body = document.createElement('div');
+    body.className = 'card-body';
+    const row = document.createElement('div');
+    row.className = 'row';
+    section.fields.forEach(field => {
+      const col = document.createElement('div');
+      col.className = 'col-md-6 mb-2';
+      if (field.type === 'checkbox') {
+        col.innerHTML = `
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="${field.id}">
+            <label class="form-check-label" for="${field.id}">${field.label}</label>
+          </div>`;
+      } else if (field.type === 'select') {
+        const opts = field.options.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+        col.innerHTML = `
+          <label class="form-label" for="${field.id}">${field.label}</label>
+          <select class="form-select" id="${field.id}">${opts}</select>`;
+      } else {
+        col.innerHTML = `
+          <label class="form-label" for="${field.id}">${field.label}</label>
+          <input type="${field.type}" class="form-control" id="${field.id}"${field.placeholder ? ' placeholder="' + field.placeholder + '"' : ''}>`;
+      }
+      row.appendChild(col);
+    });
+    body.appendChild(row);
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+async function loadAccount() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) return;
+  const res = await fetch('/api/accounts/' + id);
+  if (!res.ok) return;
+  const account = await res.json();
+  // Basic info
+  ['display_name', 'username', 'password', 'server'].forEach(key => {
+    const el = document.getElementById(key);
+    if (el) el.value = account[key] || '';
+  });
+  // Settings
+  const settings = account.settings || {};
+  sections.forEach(section => {
+    section.fields.forEach(field => {
+      if (field.basic) return;
+      const el = document.getElementById(field.id);
+      if (!el) return;
+      if (field.type === 'checkbox') {
+        el.checked = settings[field.id] === true;
+      } else {
+        el.value = settings[field.id] || '';
+      }
+    });
+  });
+}
+
+function collectData() {
+  const data = { settings: {} };
+  sections.forEach(section => {
+    section.fields.forEach(field => {
+      const el = document.getElementById(field.id);
+      if (!el) return;
+      if (field.basic) {
+        data[field.id] = el.value;
+      } else if (field.type === 'checkbox') {
+        data.settings[field.id] = el.checked;
+      } else {
+        data.settings[field.id] = el.value;
+      }
+    });
+  });
+  return data;
+}
+
+document.getElementById('config-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) return;
+  const data = collectData();
+  const res = await fetch('/api/accounts/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+  if (res.ok) alert('Settings saved successfully!');
+  else alert('Error saving settings');
+});
+
+document.getElementById('delete-btn').addEventListener('click', async () => {
+  if (!confirm('Xóa tài khoản này?')) return;
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) return;
+  await fetch('/api/accounts/' + id, { method: 'DELETE' });
+  window.location.href = '/dashboard';
+});
+
+generateForm();
+loadAccount();
+</script>
+</body>
+</html>
